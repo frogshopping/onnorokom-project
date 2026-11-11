@@ -129,7 +129,7 @@ export function App() {
 
       setAlert({
         type: 'info',
-        message: `${cls.name}-এ আপনার সিট সাময়িক Hold করা হয়েছে। অনুগ্রহ করে মেয়াদের মধ্যে ফি পরিশোধ করুন।`
+        message: `${cls.name}-এ আপনার সিট সাময়িক Hold করা হয়েছে। মেয়াদের মধ্যে ফি পরিশোধ করুন।`
       });
     } catch (err: any) {
       setAlert({
@@ -202,7 +202,7 @@ export function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#f8fafc]">
-      {/* Top Professional Header */}
+      {/* Top Header */}
       <Header
         studentId={studentId}
         onStudentIdChange={handleStudentIdChange}
@@ -246,11 +246,11 @@ export function App() {
                 onRefresh={fetchMyHolds}
               />
 
-              {/* Information Card */}
-              <div className="bg-slate-900 text-slate-300 rounded-2xl p-5 text-xs space-y-3 shadow-sm border border-slate-800">
+              {/* Information Card: Industrial Slate Gradient */}
+              <div className="bg-gradient-to-b from-slate-900 to-slate-950 text-slate-300 rounded-2xl p-5 text-xs space-y-3 shadow-sm border border-slate-800">
                 <div className="flex items-center gap-2 font-semibold text-white">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                  <span className="font-bangla">ভর্তি নির্দেশিকা ও নিয়মাবলী</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                  <span className="font-bangla tracking-tight">ভর্তি নির্দেশিকা ও নিয়মাবলী</span>
                 </div>
                 <ul className="space-y-2 text-slate-400 font-sans leading-relaxed">
                   <li className="flex items-start gap-2">
@@ -284,7 +284,7 @@ export function App() {
       </main>
 
       {/* Modern Institutional Footer */}
-      <footer className="mt-auto border-t border-slate-200/80 bg-white py-6 text-xs text-slate-500">
+      <footer className="mt-auto border-t border-slate-200/80 bg-white py-5 text-xs text-slate-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <span className="font-semibold text-slate-700">অন্বেষণ বিদ্যাপীঠ</span>

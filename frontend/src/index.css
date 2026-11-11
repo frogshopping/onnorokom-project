@@ -8,11 +8,28 @@
   }
 }
 
-/* Custom subtle micro-animations */
+/* Subtle industry gradient utilities */
+.bg-gradient-carbon {
+  background: linear-gradient(180deg, #182030 0%, #0f1624 100%);
+}
+
+.bg-gradient-surface {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.bg-gradient-card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
+}
+
+.border-subtle {
+  border-color: rgba(226, 232, 240, 0.85);
+}
+
+/* Micro animations */
 @keyframes sheetSlideUp {
   from {
     opacity: 0;
-    transform: translateY(12px) scale(0.99);
+    transform: translateY(8px) scale(0.99);
   }
   to {
     opacity: 1;
@@ -20,24 +37,10 @@
   }
 }
 
-@keyframes pulseSubtle {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.45;
-  }
-}
-
 .animate-sheet {
-  animation: sheetSlideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: sheetSlideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.animate-pulse-subtle {
-  animation: pulseSubtle 2.2s ease-in-out infinite;
-}
-
-/* Tabular figures for aligned seat counts and timers */
 .tabular-nums {
   font-variant-numeric: tabular-nums;
 }
