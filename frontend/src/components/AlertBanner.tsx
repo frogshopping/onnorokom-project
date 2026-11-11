@@ -10,38 +10,28 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({ type, message, onClose
   if (!message) return null;
 
   const bgStyles = {
-    error: 'bg-rose-50 border-rose-200 text-rose-800',
-    success: 'bg-emerald-50 border-emerald-200 text-emerald-800',
-    warning: 'bg-amber-50 border-amber-200 text-amber-800',
-    info: 'bg-blue-50 border-blue-200 text-blue-800'
+    error: 'bg-rose-950/90 text-rose-100 border-rose-800 shadow-rose-950/20',
+    success: 'bg-slate-900 text-white border-slate-800 shadow-slate-900/20',
+    warning: 'bg-amber-950/90 text-amber-100 border-amber-800 shadow-amber-950/20',
+    info: 'bg-slate-900 text-white border-slate-800 shadow-slate-900/20',
   }[type];
 
-  const iconColor = {
-    error: 'text-rose-500',
-    success: 'text-emerald-500',
-    warning: 'text-amber-500',
-    info: 'text-blue-500'
+  const dotColor = {
+    error: 'bg-rose-400',
+    success: 'bg-emerald-400',
+    warning: 'bg-amber-400',
+    info: 'bg-blue-400',
   }[type];
 
   return (
-    <div className={`p-4 rounded-xl border mb-6 shadow-sm flex items-start justify-between gap-3 ${bgStyles}`}>
-      <div className="flex items-start gap-3">
-        <svg className={`w-5 h-5 mt-0.5 flex-shrink-0 ${iconColor}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          {type === 'error' && (
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          )}
-          {type === 'success' && (
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          )}
-          {(type === 'warning' || type === 'info') && (
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          )}
-        </svg>
-        <span className="text-sm font-medium leading-relaxed">{message}</span>
+    <div className={`p-3.5 px-4 rounded-2xl border mb-6 shadow-lg backdrop-blur-md flex items-center justify-between gap-3 animate-sheet ${bgStyles}`}>
+      <div className="flex items-center gap-3">
+        <span className={`w-2 h-2 rounded-full flex-shrink-0 ${dotColor}`}></span>
+        <span className="text-xs font-medium leading-relaxed font-sans">{message}</span>
       </div>
       <button
         onClick={onClose}
-        className="text-slate-400 hover:text-slate-700 rounded-lg p-1 transition"
+        className="text-white/60 hover:text-white rounded-lg p-1 transition"
         title="বন্ধ করুন"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -51,4 +41,3 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({ type, message, onClose
     </div>
   );
 };
-

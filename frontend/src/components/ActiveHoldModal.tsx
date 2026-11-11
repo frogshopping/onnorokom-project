@@ -41,7 +41,7 @@ export const ActiveHoldModal: React.FC<ActiveHoldModalProps> = ({
       const remaining = Math.floor((new Date(activeHold.expiresAt).getTime() - Date.now()) / 1000);
       if (remaining <= 0) {
         setTimeLeft(0);
-        setCurrentStatus('EXPIRED'); // Immediately transition to EXPIRED without page reload
+        setCurrentStatus('EXPIRED');
         clearInterval(interval);
       } else {
         setTimeLeft(remaining);
@@ -67,7 +67,7 @@ export const ActiveHoldModal: React.FC<ActiveHoldModalProps> = ({
       await onConfirm(activeHold.holdId);
       setCurrentStatus('CONFIRMED');
     } catch (err: any) {
-      setError(err.message || 'ভর্তি নিশ্চিত করতে সমস্যা হয়েছে।');
+      setError(err.message || 'ভর্তি নিশ্চিতকরণ সম্পন্ন করা যায়নি।');
     } finally {
       setLoading(false);
     }
@@ -81,129 +81,140 @@ export const ActiveHoldModal: React.FC<ActiveHoldModalProps> = ({
       await onCancel(activeHold.holdId);
       setCurrentStatus('CANCELLED');
     } catch (err: any) {
-      setError(err.message || 'আবেদন বাতিল করতে সমস্যা হয়েছে।');
+      setError(err.message || 'আবেদন বাতিল করতে সমস্যা হয়েছে।');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-sheet">
+      <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden relative">
         
-        {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+        {/* Top Header Strip */}
+        <div className="px-6 pt-6 pb-4 border-b border-slate-100 flex items-center justify-between">
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-blue-600">আবেদন বিবরণ</span>
-            <h3 className="text-lg font-bold text-slate-800">{activeHold.className}</h3>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-slate-900"></span>
+              <span className="text-[11px] font-mono uppercase tracking-wider text-slate-500 font-semibold">
+                SEAT RESERVATION SLIP
+              </span>
+            </div>
+            <h3 className="text-lg font-bold text-slate-900 mt-1 font-bangla">{activeHold.className}</h3>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
+            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
         {error && (
-          <div className="mt-4 p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl flex items-center gap-2">
-            <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="mx-6 mt-4 p-3.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl flex items-start gap-2.5">
+            <svg className="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span>{error}</span>
+            <span className="font-medium leading-relaxed">{error}</span>
           </div>
         )}
 
-        {/* Content Details */}
-        <div className="mt-5 space-y-4">
-          <div className="grid grid-cols-2 gap-3 text-xs">
-            <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-              <span className="text-slate-500 block mb-0.5">আবেদন / Hold ID</span>
-              <span className="font-mono font-bold text-slate-800">{activeHold.holdId}</span>
-            </div>
-            <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-              <span className="text-slate-500 block mb-0.5">শিক্ষার্থীর আইডি</span>
-              <span className="font-mono font-bold text-slate-800">{studentId}</span>
-            </div>
-          </div>
+        {/* Dynamic Countdown & Ticket Body */}
+        <div className="p-6 space-y-5">
+          
+          {/* Status Hero Block */}
+          {currentStatus === 'HELD' && (
+            <div className="p-6 rounded-2xl bg-gradient-to-b from-slate-900 to-slate-850 text-white text-center shadow-inner relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none"></div>
+              
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-emerald-300 text-[11px] font-mono mb-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                <span>SEAT TEMPORARILY LOCKED</span>
+              </div>
 
-          {/* Status & Countdown Box */}
-          <div
-            className={`p-5 rounded-2xl border text-center transition-colors ${
-              isConfirmed
-                ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-                : isExpired
-                ? 'bg-rose-50 border-rose-200 text-rose-800'
-                : isCancelled
-                ? 'bg-slate-100 border-slate-200 text-slate-700'
-                : 'bg-amber-50/80 border-amber-200 text-amber-900'
-            }`}
-          >
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <span
-                className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
-                  isConfirmed
-                    ? 'bg-emerald-200 text-emerald-900'
-                    : isExpired
-                    ? 'bg-rose-200 text-rose-900'
-                    : isCancelled
-                    ? 'bg-slate-300 text-slate-800'
-                    : 'bg-amber-200 text-amber-950 animate-pulse'
-                }`}
-              >
+              <p className="text-xs text-slate-400 font-sans mb-1">ফি জমা দেওয়ার অবশিষ্ট সময়সীমা</p>
+              
+              <div className="text-5xl font-mono font-extrabold tracking-tight text-white my-1 tabular-nums">
+                {formattedTime}
+              </div>
+
+              <p className="text-[11px] text-slate-400 font-sans max-w-xs mx-auto mt-2 leading-relaxed">
+                উক্ত সময়ের মধ্যে ফি জমা না দিলে সিটটি নিজে থেকেই অন্যান্য শিক্ষার্থীদের জন্য মুক্ত হয়ে যাবে।
+              </p>
+            </div>
+          )}
+
+          {isConfirmed && (
+            <div className="p-6 rounded-2xl bg-emerald-50 border border-emerald-200 text-center">
+              <div className="w-12 h-12 rounded-full bg-emerald-600 text-white flex items-center justify-center mx-auto mb-3 shadow-md shadow-emerald-200">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h4 className="text-base font-bold text-emerald-950 font-bangla">ভর্তি সফলভাবে নিশ্চিত হয়েছে!</h4>
+              <p className="text-xs text-emerald-800 mt-1">
+                শিক্ষার্থীর আসনটি স্থায়ীভাবে কনফার্ম করা হয়েছে। ধন্যবাদ!
+              </p>
+            </div>
+          )}
+
+          {isExpired && (
+            <div className="p-6 rounded-2xl bg-rose-50 border border-rose-200 text-center">
+              <div className="w-10 h-10 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-2.5">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h4 className="text-sm font-bold text-rose-950 font-bangla">আবেদনের মেয়াদ শেষ হয়ে গেছে</h4>
+              <p className="text-xs text-rose-700 mt-1">
+                নির্ধারিত সময়ের মধ্যে ফি জমা না দেওয়ায় আসনটি মুক্ত করা হয়েছে।
+              </p>
+            </div>
+          )}
+
+          {isCancelled && (
+            <div className="p-6 rounded-2xl bg-slate-100 border border-slate-200 text-center">
+              <h4 className="text-sm font-bold text-slate-800 font-bangla">আবেদনটি বাতিল করা হয়েছে</h4>
+              <p className="text-xs text-slate-500 mt-1">সিটটি পুনরায় সাধারণ আবেদনের জন্য উন্মুক্ত।</p>
+            </div>
+          )}
+
+          {/* Key-Value Details */}
+          <div className="space-y-2 text-xs font-mono bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+            <div className="flex items-center justify-between py-1 border-b border-slate-200/60">
+              <span className="text-slate-500 font-sans">হোল্ড রেফারেন্স ID</span>
+              <span className="font-bold text-slate-800">{activeHold.holdId}</span>
+            </div>
+            <div className="flex items-center justify-between py-1 border-b border-slate-200/60">
+              <span className="text-slate-500 font-sans">শিক্ষার্থীর জন্ম নিবন্ধন</span>
+              <span className="font-bold text-slate-800">{studentId}</span>
+            </div>
+            <div className="flex items-center justify-between py-1">
+              <span className="text-slate-500 font-sans">বর্তমান স্ট্যাটাস</span>
+              <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                isConfirmed ? 'bg-emerald-100 text-emerald-800' :
+                isExpired ? 'bg-rose-100 text-rose-800' :
+                isCancelled ? 'bg-slate-200 text-slate-700' :
+                'bg-amber-100 text-amber-900'
+              }`}>
                 {currentStatus}
               </span>
             </div>
-
-            {currentStatus === 'HELD' && (
-              <div>
-                <p className="text-xs text-amber-700 font-medium mb-1">সিট ধরে রাখার অবশিষ্ট সময়:</p>
-                <div className="text-3xl font-extrabold font-mono text-amber-900 tracking-wider">
-                  {formattedTime}
-                </div>
-                <p className="text-[11px] text-amber-600 mt-1">
-                  এই সময়ের মধ্যে ফি জমা না দিলে সিটটি অন্যদের জন্য উন্মুক্ত হয়ে যাবে।
-                </p>
-              </div>
-            )}
-
-            {isConfirmed && (
-              <div className="py-2">
-                <svg className="w-12 h-12 text-emerald-600 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <h4 className="text-base font-bold text-emerald-900">ভর্তি সফলভাবে নিশ্চিত হয়েছে!</h4>
-                <p className="text-xs text-emerald-700 mt-0.5">আপনার আবেদন এবং ফি গ্রহণ সম্পন্ন হয়েছে।</p>
-              </div>
-            )}
-
-            {isExpired && (
-              <div className="py-2">
-                <h4 className="text-base font-bold text-rose-900">আবেদনের মেয়াদ শেষ হয়ে গেছে!</h4>
-                <p className="text-xs text-rose-700 mt-0.5">সিটটি পুনরায় সাধারণ তালিকার জন্য উন্মুক্ত করা হয়েছে।</p>
-              </div>
-            )}
-
-            {isCancelled && (
-              <div className="py-2">
-                <h4 className="text-base font-bold text-slate-800">আবেদনটি বাতিল করা হয়েছে</h4>
-                <p className="text-xs text-slate-600 mt-0.5">আপনি চাইলে অন্য কোনো ক্লাসে আবেদন করতে পারেন।</p>
-              </div>
-            )}
           </div>
+
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-slate-100">
+        {/* Action Tray */}
+        <div className="px-6 py-4 bg-slate-50/80 border-t border-slate-100 flex items-center justify-end gap-3">
           {!isConfirmed && !isExpired && !isCancelled && (
             <button
               onClick={handleCancel}
               disabled={loading}
-              className="px-4 py-2.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-xl transition border border-rose-200 disabled:opacity-50"
+              className="px-4 py-2 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-xl transition"
             >
-              আবেদন বাতিল
+              আবেদন প্রত্যাহার
             </button>
           )}
 
@@ -211,24 +222,23 @@ export const ActiveHoldModal: React.FC<ActiveHoldModalProps> = ({
             <button
               onClick={handleConfirm}
               disabled={isExpired || isCancelled || loading}
-              title={isExpired ? 'মেয়াদ শেষ হওয়ায় ফি দেওয়া সম্ভব নয়' : 'ফি দিয়ে ভর্তি নিশ্চিত করুন'}
-              className={`px-5 py-2.5 text-xs font-bold rounded-xl transition flex items-center gap-2 ${
+              className={`px-5 py-2.5 text-xs font-semibold rounded-xl transition flex items-center gap-2 ${
                 isExpired || isCancelled
                   ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                  : 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-md shadow-emerald-200 active:scale-[0.98]'
+                  : 'bg-slate-900 hover:bg-slate-800 text-white shadow-sm active:scale-[0.99]'
               }`}
             >
               {loading ? (
                 <>
                   <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>প্রসেসিং...</span>
+                  <span>প্রসেসিং হচ্ছে...</span>
                 </>
               ) : (
                 <>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
-                  <span>ভর্তি ফি দিন</span>
+                  <span>ভর্তি ফি প্রদান করুন (Confirm)</span>
                 </>
               )}
             </button>
@@ -237,7 +247,7 @@ export const ActiveHoldModal: React.FC<ActiveHoldModalProps> = ({
           {(isConfirmed || isExpired || isCancelled) && (
             <button
               onClick={onClose}
-              className="px-5 py-2.5 text-xs font-bold text-white bg-slate-800 hover:bg-slate-900 rounded-xl transition"
+              className="px-5 py-2 text-xs font-semibold bg-slate-900 text-white hover:bg-slate-800 rounded-xl transition"
             >
               বন্ধ করুন
             </button>
@@ -248,4 +258,3 @@ export const ActiveHoldModal: React.FC<ActiveHoldModalProps> = ({
     </div>
   );
 };
-

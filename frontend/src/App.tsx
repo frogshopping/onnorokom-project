@@ -9,12 +9,10 @@ import { api } from './services/api';
 import { ActiveHoldState, ClassItem, StudentHoldItem } from './types';
 
 export function App() {
-  // Student ID with localStorage persistence
   const [studentId, setStudentId] = useState<string>(() => {
     return localStorage.getItem('student_id') || '';
   });
 
-  // Active Hold with localStorage persistence (Rule 11)
   const [activeHold, setActiveHold] = useState<ActiveHoldState | null>(() => {
     const saved = localStorage.getItem('active_hold');
     if (!saved) return null;
@@ -25,6 +23,7 @@ export function App() {
     }
   });
 
+  const [activeView, setActiveView] = useState<'classes' | 'my-holds'>('classes');
   const [classes, setClasses] = useState<ClassItem[]>([]);
   const [myHolds, setMyHolds] = useState<StudentHoldItem[]>([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -32,16 +31,13 @@ export function App() {
   const [classesLoading, setClassesLoading] = useState(true);
   const [holdsLoading, setHoldsLoading] = useState(false);
 
-  // Global Alert State (Rule 12)
   const [alert, setAlert] = useState<{ type: 'error' | 'success' | 'warning' | 'info'; message: string } | null>(null);
 
-  // Save studentId to localStorage
   const handleStudentIdChange = (id: string) => {
     setStudentId(id);
     localStorage.setItem('student_id', id);
   };
 
-  // Save activeHold to localStorage
   const updateActiveHold = (hold: ActiveHoldState | null) => {
     setActiveHold(hold);
     if (hold) {
@@ -51,7 +47,6 @@ export function App() {
     }
   };
 
-  // Fetch classes
   const fetchClasses = useCallback(async (showLoading = false) => {
     try {
       if (showLoading) setClassesLoading(true);
@@ -59,11 +54,10 @@ export function App() {
       setClasses(data);
     } catch (err: any) {
       console.error('Failed to fetch classes:', err);
-      // Only show alert if server is down and classes list is empty
       if (classes.length === 0) {
         setAlert({
           type: 'error',
-          message: 'সার্ভারের সাথে সংযোগ স্থাপন করা সম্ভব হয়নি। ব্যাকএন্ড চালু আছে কিনা নিশ্চিত করুন।'
+          message: 'সার্ভারের সাথে সংযোগ পাওয়া যায়নি। ব্যাকএন্ড সার্ভিস সচল রয়েছে কিনা নিশ্চিত করুন।'
         });
       }
     } finally {
@@ -71,7 +65,6 @@ export function App() {
     }
   }, [classes.length]);
 
-  // Fetch student holds
   const fetchMyHolds = useCallback(async () => {
     if (!/^\d{17}$/.test(studentId)) {
       setMyHolds([]);
@@ -88,12 +81,10 @@ export function App() {
     }
   }, [studentId]);
 
-  // Initial load
   useEffect(() => {
     fetchClasses(true);
   }, [fetchClasses]);
 
-  // Fetch holds when studentId changes
   useEffect(() => {
     fetchMyHolds();
   }, [fetchMyHolds]);
@@ -110,7 +101,6 @@ export function App() {
     return () => clearInterval(interval);
   }, [fetchClasses, fetchMyHolds, studentId]);
 
-  // Handle Apply for seat (Hold)
   const handleApply = async (cls: ClassItem) => {
     if (!/^\d{17}$/.test(studentId)) {
       setAlert({
@@ -139,7 +129,7 @@ export function App() {
 
       setAlert({
         type: 'info',
-        message: `${cls.name}-এ আপনার সিট সফলভাবে সাময়িক Hold করা হয়েছে। নির্ধারিত সময়ের মধ্যে ফি দিয়ে ভর্তি নিশ্চিত করুন।`
+        message: `${cls.name}-এ আপনার সিট সাময়িক Hold করা হয়েছে। অনুগ্রহ করে মেয়াদের মধ্যে ফি পরিশোধ করুন।`
       });
     } catch (err: any) {
       setAlert({
@@ -151,10 +141,9 @@ export function App() {
     }
   };
 
-  // Handle Confirm Hold (Payment)
   const handleConfirmHold = async (holdId: string) => {
     try {
-      const res = await api.confirmHold(holdId, studentId);
+      await api.confirmHold(holdId, studentId);
       if (activeHold && activeHold.holdId === holdId) {
         updateActiveHold({
           ...activeHold,
@@ -165,14 +154,13 @@ export function App() {
       await fetchMyHolds();
       setAlert({
         type: 'success',
-        message: 'ভর্তি সফলভাবে নিশ্চিত হয়েছে! আপনার আবেদন ও পেমেন্ট গৃহীত হয়েছে।'
+        message: 'ভর্তি সফলভাবে নিশ্চিত হয়েছে! শিক্ষার্থী আইডি ও আবেদন সংরক্ষিত।'
       });
     } catch (err: any) {
       throw err;
     }
   };
 
-  // Handle Cancel Hold
   const handleCancelHold = async (holdId: string) => {
     try {
       await api.cancelHold(holdId, studentId);
@@ -186,24 +174,22 @@ export function App() {
       await fetchMyHolds();
       setAlert({
         type: 'info',
-        message: 'আবেদনটি সফলভাবে বাতিল করা হয়েছে। সিটটি সাধারণ তালিকার জন্য উন্মুক্ত করা হয়েছে।'
+        message: 'আবেদনটি সফলভাবে প্রত্যাহার করা হয়েছে।'
       });
     } catch (err: any) {
       throw err;
     }
   };
 
-  // Handle Admin Create Class
   const handleCreateClass = async (name: string, totalSeats: number) => {
     await api.createClass({ name, totalSeats });
     await fetchClasses(false);
     setAlert({
       type: 'success',
-      message: `"${name}" (${totalSeats} সিট) সফলভাবে তৈরি হয়েছে।`
+      message: `"${name}" সফলভাবে যুক্ত হয়েছে।`
     });
   };
 
-  // Select an existing hold from history to view in modal
   const handleSelectHoldFromHistory = (hold: StudentHoldItem) => {
     updateActiveHold({
       holdId: hold.holdId,
@@ -215,18 +201,20 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
-      {/* Top Header */}
+    <div className="min-h-screen flex flex-col bg-[#f8fafc]">
+      {/* Top Professional Header */}
       <Header
         studentId={studentId}
         onStudentIdChange={handleStudentIdChange}
         onOpenCreateClass={() => setIsCreateModalOpen(true)}
+        activeView={activeView}
+        onViewChange={setActiveView}
+        holdsCount={myHolds.length}
       />
 
-      {/* Main Body */}
+      {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
         
-        {/* Global Alert Notification */}
         {alert && (
           <AlertBanner
             type={alert.type}
@@ -235,20 +223,54 @@ export function App() {
           />
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left 2 Cols: Class List */}
-          <div className="lg:col-span-2 space-y-6">
-            <ClassList
-              classes={classes}
-              studentId={studentId}
-              onApply={handleApply}
-              applyingClassId={applyingClassId}
-              loading={classesLoading}
-            />
-          </div>
+        {/* View Routing */}
+        {activeView === 'classes' ? (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-6">
+              <ClassList
+                classes={classes}
+                studentId={studentId}
+                onApply={handleApply}
+                applyingClassId={applyingClassId}
+                loading={classesLoading}
+              />
+            </div>
 
-          {/* Right Col: My Applications */}
-          <div className="space-y-6">
+            {/* Side Ledger: My Active Applications */}
+            <div className="space-y-6">
+              <MyHolds
+                holds={myHolds}
+                studentId={studentId}
+                onSelectHold={handleSelectHoldFromHistory}
+                loading={holdsLoading}
+                onRefresh={fetchMyHolds}
+              />
+
+              {/* Information Card */}
+              <div className="bg-slate-900 text-slate-300 rounded-2xl p-5 text-xs space-y-3 shadow-sm border border-slate-800">
+                <div className="flex items-center gap-2 font-semibold text-white">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  <span className="font-bangla">ভর্তি নির্দেশিকা ও নিয়মাবলী</span>
+                </div>
+                <ul className="space-y-2 text-slate-400 font-sans leading-relaxed">
+                  <li className="flex items-start gap-2">
+                    <span className="text-slate-600 font-mono">01.</span>
+                    <span>সিট খালি থাকা সাপেক্ষে আবেদনের সাথে সাথে সিটটি ১০ মিনিটের জন্য সাময়িক সংরক্ষিত (Hold) হবে।</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-slate-600 font-mono">02.</span>
+                    <span>কাউন্টডাউন শূন্য হওয়ার পূর্বেই "ভর্তি ফি দিন" বাটনে চাপ দিয়ে ভর্তি চূড়ান্ত করতে হবে।</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-slate-600 font-mono">03.</span>
+                    <span>নির্ধারিত সময়ে ফি না দিলে সিটটি নিজে থেকেই মুক্ত হয়ে অন্য শিক্ষার্থীর জন্য উপলব্ধ হবে।</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="max-w-3xl mx-auto">
             <MyHolds
               holds={myHolds}
               studentId={studentId}
@@ -256,26 +278,28 @@ export function App() {
               loading={holdsLoading}
               onRefresh={fetchMyHolds}
             />
-
-            {/* Quick Helper Box */}
-            <div className="bg-blue-50/70 border border-blue-100 rounded-2xl p-4 text-xs text-blue-900 space-y-2">
-              <div className="flex items-center gap-2 font-bold text-blue-950">
-                <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>ভর্তি প্রক্রিয়ার নিয়মাবলী:</span>
-              </div>
-              <ul className="list-disc pl-5 space-y-1 text-slate-700">
-                <li>আবেদন সফল হলে সিটটি কিছু সময়ের জন্য Hold হবে।</li>
-                <li>কাউন্টডাউন শেষ হওয়ার পূর্বেই "ভর্তি ফি দিন" বাটনে চাপুন।</li>
-                <li>মেয়াদ শেষ হলে সিটটি স্বয়ংক্রিয়ভাবে বাতিল হয়ে যাবে।</li>
-              </ul>
-            </div>
           </div>
-        </div>
+        )}
+
       </main>
 
-      {/* Active Hold Modal (Countdown & Fee payment) */}
+      {/* Modern Institutional Footer */}
+      <footer className="mt-auto border-t border-slate-200/80 bg-white py-6 text-xs text-slate-500">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-slate-700">অন্বেষণ বিদ্যাপীঠ</span>
+            <span>•</span>
+            <span>School Admission & Concurrency Management Engine</span>
+          </div>
+          <div className="flex items-center gap-4 font-mono text-[11px] text-slate-400">
+            <span>PostgreSQL 16 Multi-Process Protected</span>
+            <span>•</span>
+            <span>ASP.NET Core 8</span>
+          </div>
+        </div>
+      </footer>
+
+      {/* Reservation Slip Modal */}
       <ActiveHoldModal
         activeHold={activeHold}
         studentId={studentId}
@@ -293,4 +317,3 @@ export function App() {
     </div>
   );
 }
-

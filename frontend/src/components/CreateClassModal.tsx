@@ -23,7 +23,7 @@ export const CreateClassModal: React.FC<CreateClassModalProps> = ({
     setError(null);
 
     if (!name.trim()) {
-      setError('ক্লাসের নাম দিন (যেমন: Class 6 - Morning Shift)।');
+      setError('শ্রেণির নাম ও শিফট দিন (যেমন: Class 6 - Morning Shift)।');
       return;
     }
 
@@ -39,59 +39,64 @@ export const CreateClassModal: React.FC<CreateClassModalProps> = ({
       setTotalSeats(60);
       onClose();
     } catch (err: any) {
-      setError(err.message || 'ক্লাস তৈরি করতে সমস্যা হয়েছে।');
+      setError(err.message || 'ক্লাস তৈরি করতে সমস্যা হয়েছে।');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-sheet">
+      <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+        
+        {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-bold text-slate-800">নতুন ক্লাস ও শিফট যোগ করুন</h3>
+          <div>
+            <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-slate-400 block mb-0.5">
+              ADMINISTRATIVE PANEL
+            </span>
+            <h3 className="text-base font-bold text-slate-900 font-bangla">নতুন ক্লাস ও শিফট কনফিগারেশন</h3>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
+            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
         {error && (
-          <div className="mt-4 p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-lg">
-            {error}
+          <div className="mt-4 p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl flex items-center gap-2">
+            <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{error}</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+        <form onSubmit={handleSubmit} className="mt-5 space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              ক্লাসের নাম ও শিফট <span className="text-rose-500">*</span>
+            <label className="block text-xs font-semibold text-slate-800 mb-1.5 font-sans">
+              শ্রেণির নাম ও শিফট <span className="text-rose-500">*</span>
             </label>
             <input
               type="text"
               placeholder="e.g. Class 6 - Morning Shift"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
+              className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-slate-100 focus:border-slate-800 font-medium"
               required
             />
-            <p className="mt-1 text-[11px] text-slate-400">প্রতিটি শিফট আলাদা ক্লাস হিসেবে তৈরি হবে।</p>
+            <p className="mt-1 text-[11px] text-slate-400 font-sans">
+              প্রতিটি শিফটকে একটি স্বয়ংসম্পূর্ণ ক্লাস হিসেবে ডাটাবেসে সেভ করা হবে।
+            </p>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              মোট আসন সংখ্যা <span className="text-rose-500">*</span>
+            <label className="block text-xs font-semibold text-slate-800 mb-1.5 font-sans">
+              মোট বরাদ্দকৃত আসন সংখ্যা <span className="text-rose-500">*</span>
             </label>
             <input
               type="number"
@@ -99,7 +104,7 @@ export const CreateClassModal: React.FC<CreateClassModalProps> = ({
               max="10000"
               value={totalSeats}
               onChange={(e) => setTotalSeats(e.target.value === '' ? '' : parseInt(e.target.value, 10))}
-              className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
+              className="w-full px-3.5 py-2.5 text-xs font-mono rounded-xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-slate-100 focus:border-slate-800"
               required
             />
           </div>
@@ -116,14 +121,14 @@ export const CreateClassModal: React.FC<CreateClassModalProps> = ({
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition shadow-md shadow-blue-200 disabled:opacity-50"
+              className="px-5 py-2 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-xl transition shadow-sm disabled:opacity-50"
             >
-              {loading ? 'তৈরি হচ্ছে...' : 'ক্লাস সংরক্ষণ করুন'}
+              {loading ? 'সংরক্ষণ হচ্ছে...' : 'সংরক্ষণ করুন'}
             </button>
           </div>
         </form>
+
       </div>
     </div>
   );
 };
-

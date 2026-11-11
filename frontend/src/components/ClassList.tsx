@@ -18,125 +18,220 @@ export const ClassList: React.FC<ClassListProps> = ({
 }) => {
   const isStudentIdValid = /^\d{17}$/.test(studentId);
 
+  // Overall statistics calculation
+  const totalCapacity = classes.reduce((acc, c) => acc + c.totalSeats, 0);
+  const totalConfirmed = classes.reduce((acc, c) => acc + c.confirmedSeats, 0);
+  const totalHeld = classes.reduce((acc, c) => acc + c.heldSeats, 0);
+  const totalAvailable = classes.reduce((acc, c) => acc + c.availableSeats, 0);
+
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-bold text-slate-800">ভর্তিযোগ্য ক্লাসের তালিকা</h2>
-          <p className="text-xs text-slate-500">সিটের তথ্য প্রতি কয়েক সেকেন্ড পর পর স্বয়ংক্রিয়ভাবে আপডেট হচ্ছে</p>
+    <div className="space-y-6">
+      
+      {/* High-End Real-Time Analytics Strip */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
+        <div className="bg-white rounded-xl p-4 border border-slate-200/90 shadow-xs flex flex-col justify-between">
+          <div className="flex items-center justify-between text-slate-500 mb-1">
+            <span className="text-xs font-medium">মোট আসন সক্ষমতা</span>
+            <span className="w-2 h-2 rounded-full bg-slate-400"></span>
+          </div>
+          <div className="text-2xl font-bold font-mono text-slate-900 tabular-nums">
+            {totalCapacity}
+          </div>
+          <span className="text-[11px] text-slate-400 mt-1">সব শাখা ও শিফট মিলিয়ে</span>
         </div>
-        <div className="flex items-center gap-2 text-xs text-slate-500">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-          </span>
-          <span>লাইভ সিট মনিটরিং</span>
+
+        <div className="bg-white rounded-xl p-4 border border-slate-200/90 shadow-xs flex flex-col justify-between">
+          <div className="flex items-center justify-between text-blue-600 mb-1">
+            <span className="text-xs font-medium">খালি আসন (Available)</span>
+            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+          </div>
+          <div className="text-2xl font-bold font-mono text-blue-700 tabular-nums">
+            {totalAvailable}
+          </div>
+          <span className="text-[11px] text-blue-600/80 mt-1">আবেদনের জন্য উন্মুক্ত</span>
+        </div>
+
+        <div className="bg-white rounded-xl p-4 border border-slate-200/90 shadow-xs flex flex-col justify-between">
+          <div className="flex items-center justify-between text-amber-600 mb-1">
+            <span className="text-xs font-medium">চলমান হোল্ড (In-Hold)</span>
+            <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+          </div>
+          <div className="text-2xl font-bold font-mono text-amber-700 tabular-nums">
+            {totalHeld}
+          </div>
+          <span className="text-[11px] text-amber-600/80 mt-1">পেমেন্ট প্রক্রিয়ার অপেক্ষায়</span>
+        </div>
+
+        <div className="bg-white rounded-xl p-4 border border-slate-200/90 shadow-xs flex flex-col justify-between">
+          <div className="flex items-center justify-between text-emerald-600 mb-1">
+            <span className="text-xs font-medium">নিশ্চিত ভর্তি (Confirmed)</span>
+            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+          </div>
+          <div className="text-2xl font-bold font-mono text-emerald-700 tabular-nums">
+            {totalConfirmed}
+          </div>
+          <span className="text-[11px] text-emerald-600/80 mt-1">ফি পরিশোধ সম্পন্ন</span>
         </div>
       </div>
 
+      {/* Main Section Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-2">
+        <div>
+          <h2 className="text-base font-bold text-slate-900 tracking-tight flex items-center gap-2">
+            <span>ভর্তিযোগ্য শ্রেণিসমূহ</span>
+            <span className="text-xs font-normal text-slate-500">({classes.length}টি ক্লাস তালিকাভুক্ত)</span>
+          </h2>
+          <p className="text-xs text-slate-500 mt-0.5">প্রতি ৪ সেকেন্ড পরপর সিট পরিসংখ্যান ডাটাবেস থেকে স্বয়ংক্রিয়ভাবে রিফ্রেশ হচ্ছে</p>
+        </div>
+
+        {!isStudentIdValid && (
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-xs font-medium">
+            <svg className="w-4 h-4 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>আবেদন করতে উপরে ১৭ অঙ্কের জন্ম নিবন্ধন নম্বর লিখুন</span>
+          </div>
+        )}
+      </div>
+
+      {/* Class Cards Grid */}
       {loading && classes.length === 0 ? (
-        <div className="bg-white rounded-2xl p-12 text-center border border-slate-200">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent mb-3"></div>
-          <p className="text-sm text-slate-600 font-medium">ক্লাসের তথ্য লোড হচ্ছে...</p>
+        <div className="bg-white rounded-2xl p-16 text-center border border-slate-200 shadow-xs">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-2 border-slate-900 border-t-transparent mb-3.5"></div>
+          <p className="text-sm font-semibold text-slate-700">লাইভ সিট ম্যাট্রিক্স লোড হচ্ছে...</p>
         </div>
       ) : classes.length === 0 ? (
-        <div className="bg-white rounded-2xl p-12 text-center border border-slate-200 shadow-sm">
-          <div className="w-12 h-12 mx-auto rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
+        <div className="bg-white rounded-2xl p-14 text-center border border-slate-200 shadow-xs">
+          <div className="w-12 h-12 mx-auto rounded-2xl bg-slate-100 flex items-center justify-center text-slate-500 mb-3 border border-slate-200">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
             </svg>
           </div>
-          <h3 className="text-base font-bold text-slate-800">কোনো ক্লাস পাওয়া যায়নি</h3>
-          <p className="text-xs text-slate-500 mt-1">অ্যাডমিন হিসেবে উপরে "নতুন ক্লাস তৈরি" বাটনে ক্লিক করে ক্লাস যোগ করুন।</p>
+          <h3 className="text-sm font-bold text-slate-800">কোনো ক্লাসের তথ্য পাওয়া যায়নি</h3>
+          <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+            স্কুল অ্যাডমিন প্যানেল থেকে উপরে ডানপাশে "ক্লাস সংযোজন (Admin)" বাটনে ক্লিক করে নতুন ক্লাস তৈরি করুন।
+          </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {classes.map((cls) => {
             const isFull = cls.availableSeats <= 0;
             const isApplying = applyingClassId === cls.id;
 
+            // Capacity bar ratios
+            const confirmedRatio = cls.totalSeats > 0 ? (cls.confirmedSeats / cls.totalSeats) * 100 : 0;
+            const heldRatio = cls.totalSeats > 0 ? (cls.heldSeats / cls.totalSeats) * 100 : 0;
+            const availableRatio = cls.totalSeats > 0 ? (cls.availableSeats / cls.totalSeats) * 100 : 0;
+
             return (
               <div
                 key={cls.id}
-                className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between"
+                className="group bg-white rounded-2xl p-5 border border-slate-200/90 hover:border-slate-300 shadow-xs hover:shadow-md transition-all flex flex-col justify-between relative overflow-hidden"
               >
                 <div>
-                  <div className="flex items-start justify-between gap-2 mb-3">
-                    <h3 className="text-base font-bold text-slate-900 leading-snug">{cls.name}</h3>
-                    <span
-                      className={`px-2.5 py-1 text-[11px] font-bold rounded-full ${
-                        isFull
-                          ? 'bg-rose-100 text-rose-700'
-                          : 'bg-emerald-100 text-emerald-700'
-                      }`}
-                    >
-                      {isFull ? 'আসন পূর্ণ' : `${cls.availableSeats} সিট খালি`}
-                    </span>
+                  {/* Card Header */}
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div>
+                      <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-slate-400 block mb-0.5">
+                        ID: {cls.id}
+                      </span>
+                      <h3 className="text-base font-bold text-slate-900 group-hover:text-slate-800 transition">
+                        {cls.name}
+                      </h3>
+                    </div>
+
+                    <div className="flex flex-col items-end">
+                      <span
+                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
+                          isFull
+                            ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                            : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                        }`}
+                      >
+                        {isFull ? 'আসন পূর্ণ' : `${cls.availableSeats} সিট খালি`}
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Seat Statistics Grid */}
-                  <div className="grid grid-cols-2 gap-2 my-4">
-                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
-                      <p className="text-[11px] text-slate-500 font-medium">মোট আসন</p>
-                      <p className="text-base font-bold text-slate-800">{cls.totalSeats}</p>
+                  {/* Multi-Segment Capacity Visualization Bar */}
+                  <div className="my-4">
+                    <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden flex">
+                      <div
+                        style={{ width: `${confirmedRatio}%` }}
+                        className="bg-slate-800 transition-all duration-500"
+                        title={`নিশ্চিত ভর্তি: ${cls.confirmedSeats}`}
+                      />
+                      <div
+                        style={{ width: `${heldRatio}%` }}
+                        className="bg-amber-400 transition-all duration-500"
+                        title={`হোল্ডে আছে: ${cls.heldSeats}`}
+                      />
+                      <div
+                        style={{ width: `${availableRatio}%` }}
+                        className="bg-emerald-500 transition-all duration-500"
+                        title={`খালি সিট: ${cls.availableSeats}`}
+                      />
                     </div>
-
-                    <div className="p-2.5 rounded-xl bg-blue-50/60 border border-blue-100">
-                      <p className="text-[11px] text-blue-600 font-medium">খালি সিট</p>
-                      <p className="text-base font-bold text-blue-700">{cls.availableSeats}</p>
+                    <div className="flex items-center justify-between text-[11px] text-slate-400 mt-1.5 font-mono">
+                      <span>০</span>
+                      <span>মোট {cls.totalSeats} আসন</span>
                     </div>
+                  </div>
 
-                    <div className="p-2.5 rounded-xl bg-amber-50/60 border border-amber-100">
-                      <p className="text-[11px] text-amber-600 font-medium">Hold-এ আছে</p>
-                      <p className="text-base font-bold text-amber-700">{cls.heldSeats}</p>
+                  {/* Tabular Details Grid */}
+                  <div className="grid grid-cols-4 gap-2 text-center my-4 py-2.5 px-3 rounded-xl bg-slate-50/70 border border-slate-100 font-mono">
+                    <div>
+                      <span className="text-[10px] text-slate-400 block font-sans">মোট</span>
+                      <span className="text-sm font-bold text-slate-800 tabular-nums">{cls.totalSeats}</span>
                     </div>
-
-                    <div className="p-2.5 rounded-xl bg-emerald-50/60 border border-emerald-100">
-                      <p className="text-[11px] text-emerald-600 font-medium">নিশ্চিত ভর্তি</p>
-                      <p className="text-base font-bold text-emerald-700">{cls.confirmedSeats}</p>
+                    <div>
+                      <span className="text-[10px] text-emerald-600 block font-sans">খালি</span>
+                      <span className="text-sm font-bold text-emerald-700 tabular-nums">{cls.availableSeats}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-amber-600 block font-sans">হোল্ড</span>
+                      <span className="text-sm font-bold text-amber-700 tabular-nums">{cls.heldSeats}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-500 block font-sans">নিশ্চিত</span>
+                      <span className="text-sm font-bold text-slate-800 tabular-nums">{cls.confirmedSeats}</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Apply Action */}
-                <div className="pt-3 border-t border-slate-100">
+                {/* Primary Action Button */}
+                <div className="pt-2">
                   <button
                     onClick={() => onApply(cls)}
                     disabled={isFull || isApplying || !isStudentIdValid}
-                    title={
-                      !isStudentIdValid
-                        ? 'আগে উপরে ১৭ অঙ্কের জন্ম নিবন্ধন নম্বর দিন'
-                        : isFull
-                        ? 'সিট খালি নেই'
-                        : 'আবেদন করুন'
-                    }
-                    className={`w-full py-2.5 px-4 text-xs font-bold rounded-xl transition flex items-center justify-center gap-2 ${
+                    className={`w-full py-2.5 px-4 rounded-xl text-xs font-semibold tracking-wide transition-all flex items-center justify-center gap-2 ${
                       isFull
-                        ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                        ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
                         : !isStudentIdValid
-                        ? 'bg-slate-100 text-slate-500 cursor-not-allowed hover:bg-slate-200'
-                        : 'bg-blue-600 text-white hover:bg-blue-700 shadow-md shadow-blue-200 active:scale-[0.98]'
+                        ? 'bg-slate-100 text-slate-500 hover:bg-slate-200 border border-slate-200 cursor-not-allowed'
+                        : 'bg-slate-900 text-white hover:bg-slate-800 shadow-sm active:scale-[0.99]'
                     }`}
                   >
                     {isApplying ? (
                       <>
                         <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span>প্রসেসিং...</span>
+                        <span>আসন যাচাই করা হচ্ছে...</span>
                       </>
                     ) : isFull ? (
-                      <span>আসন পূর্ণ</span>
+                      <span>কোনো আসন খালি নেই</span>
                     ) : !isStudentIdValid ? (
-                      <span>জন্ম নিবন্ধন নম্বর দিন</span>
+                      <span>আগে জন্ম নিবন্ধন নম্বর প্রদান করুন</span>
                     ) : (
                       <>
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                         </svg>
-                        <span>আবেদন করুন</span>
+                        <span>আবেদন করুন (Hold Seat)</span>
                       </>
                     )}
                   </button>
                 </div>
+
               </div>
             );
           })}
@@ -145,4 +240,3 @@ export const ClassList: React.FC<ClassListProps> = ({
     </div>
   );
 };
-
