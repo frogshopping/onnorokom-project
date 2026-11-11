@@ -246,24 +246,28 @@ export function App() {
                 onRefresh={fetchMyHolds}
               />
 
-              {/* Information Card: Industrial Slate Gradient */}
-              <div className="bg-gradient-to-b from-slate-900 to-slate-950 text-slate-300 rounded-2xl p-5 text-xs space-y-3 shadow-sm border border-slate-800">
-                <div className="flex items-center gap-2 font-semibold text-white">
-                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+              {/* Information Card: Pure Clean White */}
+              <div className="bg-white text-slate-700 rounded-2xl p-5 text-xs space-y-3 shadow-xs border border-slate-200">
+                <div className="flex items-center gap-2 font-bold text-slate-900">
+                  <span className="w-2 h-2 rounded-full bg-slate-900"></span>
                   <span className="font-bangla tracking-tight">ভর্তি নির্দেশিকা ও নিয়মাবলী</span>
                 </div>
-                <ul className="space-y-2 text-slate-400 font-sans leading-relaxed">
+                <ul className="space-y-2 text-slate-600 font-sans leading-relaxed">
                   <li className="flex items-start gap-2">
-                    <span className="text-slate-600 font-mono">01.</span>
-                    <span>সিট খালি থাকা সাপেক্ষে আবেদনের সাথে সাথে সিটটি ১০ মিনিটের জন্য সাময়িক সংরক্ষিত (Hold) হবে।</span>
+                    <span className="text-slate-400 font-mono font-semibold">01.</span>
+                    <span>সিট খালি থাকা সাপেক্ষে আবেদনের সাথে সাথে সিটটি ১০ মিনিটের জন্য সংরক্ষিত (Hold) হবে।</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-slate-600 font-mono">02.</span>
-                    <span>কাউন্টডাউন শূন্য হওয়ার পূর্বেই "ভর্তি ফি দিন" বাটনে চাপ দিয়ে ভর্তি চূড়ান্ত করতে হবে।</span>
+                    <span className="text-slate-400 font-mono font-semibold">02.</span>
+                    <span>কাউন্টডাউন শূন্য হওয়ার পূর্বেই "ভর্তি ফি দিন" বাটনে চাপ দিয়ে ভর্তি নিশ্চিত করতে হবে।</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-slate-600 font-mono">03.</span>
-                    <span>নির্ধারিত সময়ে ফি না দিলে সিটটি নিজে থেকেই মুক্ত হয়ে অন্য শিক্ষার্থীর জন্য উপলব্ধ হবে।</span>
+                    <span className="text-slate-400 font-mono font-semibold">03.</span>
+                    <span>একজন শিক্ষার্থী একই সময়ে একাধিক ক্লাসে আবেদন বা ভর্তি থাকতে পারবেন না।</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-slate-400 font-mono font-semibold">04.</span>
+                    <span>মেয়াদের মধ্যে ফি না দিলে সিটটি নিজে থেকেই অন্যান্যদের জন্য উন্মুক্ত হয়ে যাবে।</span>
                   </li>
                 </ul>
               </div>

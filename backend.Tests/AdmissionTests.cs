@@ -95,6 +95,22 @@ public class AdmissionTests : IClassFixture<CustomWebApplicationFactory>
 
         // Assert: rejected with 409 Conflict
         Assert.Equal(HttpStatusCode.Conflict, res2.StatusCode);
+
+        // Third hold attempt by the SAME student in a DIFFERENT class
+        var createClass2 = await client.PostAsJsonAsync("/classes", new CreateClassRequest
+        {
+            Name = "Class 8 - Different Class",
+            TotalSeats = 10
+        });
+        var createdClass2 = await createClass2.Content.ReadFromJsonAsync<ClassCreatedResponse>();
+        Assert.NotNull(createdClass2);
+
+        var req3 = new HttpRequestMessage(HttpMethod.Post, $"/classes/{createdClass2.Id}/holds");
+        req3.Headers.Add("X-Student-Id", studentId);
+        var res3 = await client.SendAsync(req3);
+
+        // Assert: also rejected with 409 Conflict
+        Assert.Equal(HttpStatusCode.Conflict, res3.StatusCode);
     }
 
     [Fact]

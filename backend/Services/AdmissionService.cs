@@ -169,15 +169,19 @@ public class AdmissionService : IAdmissionService
 
                 var now = DateTime.UtcNow;
 
-                // Rule 3: Single active application or confirmed admission per student per class
-                var existingActiveCount = await _dbContext.Holds.CountAsync(h =>
-                    h.ClassId == classId &&
-                    h.StudentId == studentId &&
-                    (h.Status == "CONFIRMED" || (h.Status == "HELD" && h.ExpiresAt > now)));
+                // Rule: One student cannot hold or enroll in two classes at the same time
+                var existingActive = await _dbContext.Holds
+                    .Include(h => h.Class)
+                    .FirstOrDefaultAsync(h =>
+                        h.StudentId == studentId &&
+                        (h.Status == "CONFIRMED" || (h.Status == "HELD" && h.ExpiresAt > now)));
 
-                if (existingActiveCount > 0)
+                if (existingActive != null)
                 {
-                    throw new ConflictException("Student already has an active hold or confirmed admission in this class.");
+                    var msg = existingActive.Status == "CONFIRMED"
+                        ? $"Student already has a confirmed admission in '{existingActive.Class?.Name ?? existingActive.ClassId}'."
+                        : $"Student already has an active hold in '{existingActive.Class?.Name ?? existingActive.ClassId}'.";
+                    throw new ConflictException(msg);
                 }
 
                 // Check seat availability (Rule 1)
